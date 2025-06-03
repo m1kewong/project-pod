@@ -1,0 +1,70 @@
+name: genz_social_video
+description: A social video platform for Gen Z users in APAC
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# Version follows semantic versioning - https://semver.org
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Firebase
+  firebase_core: ^2.15.0
+  firebase_auth: ^4.7.2
+  cloud_firestore: ^4.8.4
+  firebase_storage: ^11.2.5
+  google_sign_in: ^6.1.4
+  
+  # UI
+  cupertino_icons: ^1.0.5
+  flutter_svg: ^2.0.7
+  cached_network_image: ^3.2.3
+  shimmer: ^3.0.0
+  
+  # State Management
+  provider: ^6.0.5
+  
+  # Video
+  video_player: ^2.7.0
+  chewie: ^1.7.0
+  
+  # Networking
+  http: ^1.1.0
+  dio: ^5.3.2
+  
+  # Utils
+  intl: ^0.18.1
+  path_provider: ^2.1.0
+  shared_preferences: ^2.2.0
+  permission_handler: ^10.4.3
+  image_picker: ^1.0.1
+  url_launcher: ^6.1.12
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.2
+  build_runner: ^2.4.6
+  mockito: ^5.4.2
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
+    
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700

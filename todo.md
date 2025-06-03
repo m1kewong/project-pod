@@ -23,11 +23,11 @@ Add a basic CI/CD workflow (e.g., YAML for GitHub Actions or cloudbuild.yaml for
 
 **TODO List:**
 
-* [ ] Scaffold a new Flutter project in `/client`
-* [ ] Add required dependencies: `firebase_core`, `firebase_auth`, `cloud_firestore`, `google_sign_in`, `firebase_storage`, `video_player`, `http`
-* [ ] Set up base navigation: Home, Video Feed, Video Player, Profile, Upload, Login
-* [ ] Configure Firebase project and connect to mobile app
-* [ ] Test: App builds and connects to Firebase in emulator/device
+* [x] Scaffold a new Flutter project in `/client`
+* [x] Add required dependencies: `firebase_core`, `firebase_auth`, `cloud_firestore`, `google_sign_in`, `firebase_storage`, `video_player`, `http`
+* [x] Set up base navigation: Home, Video Feed, Video Player, Profile, Upload, Login
+* [x] Configure Firebase project and connect to mobile app
+* [x] Test: App builds and connects to Firebase in emulator/device
 
 **Prompt:**
 
