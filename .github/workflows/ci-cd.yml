@@ -1,0 +1,119 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Flutter Mobile App Tests
+  flutter_tests:
+    name: Flutter Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.10.0'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Analyze project source
+        run: flutter analyze
+      
+      - name: Run tests
+        run: flutter test
+
+  # Backend Tests
+  backend_tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './server/package-lock.json'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint
+      
+      - name: Run tests
+        run: npm test
+
+  # Deploy to Development (only on develop branch)
+  deploy_dev:
+    name: Deploy to Development
+    needs: [flutter_tests, backend_tests]
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_DEV }}
+          service_account_key: ${{ secrets.GCP_SA_KEY_DEV }}
+          export_default_credentials: true
+      
+      - name: Deploy Backend to Cloud Run
+        run: |
+          cd server
+          gcloud builds submit --config=cloudbuild.yaml --substitutions=_ENVIRONMENT=dev
+      
+      - name: Build Flutter App (Android)
+        run: |
+          cd client
+          flutter build appbundle --dart-define=ENVIRONMENT=dev
+
+  # Deploy to Production (only on main branch)
+  deploy_prod:
+    name: Deploy to Production
+    needs: [flutter_tests, backend_tests]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID_PROD }}
+          service_account_key: ${{ secrets.GCP_SA_KEY_PROD }}
+          export_default_credentials: true
+      
+      - name: Deploy Backend to Cloud Run
+        run: |
+          cd server
+          gcloud builds submit --config=cloudbuild.yaml --substitutions=_ENVIRONMENT=prod
+      
+      - name: Build Flutter App (Android)
+        run: |
+          cd client
+          flutter build appbundle --dart-define=ENVIRONMENT=prod
+      
+      - name: Build Flutter App (iOS)
+        run: |
+          cd client
+          flutter build ipa --dart-define=ENVIRONMENT=prod
