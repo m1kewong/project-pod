@@ -11,13 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
-  # Firebase
-  firebase_core: ^2.15.0
-  firebase_auth: ^4.7.2
-  cloud_firestore: ^4.8.4
-  firebase_storage: ^11.2.5
+    # Firebase
+  firebase_core: ^3.13.1
+  firebase_auth: ^5.5.4  
+  cloud_firestore: ^5.6.8
+  firebase_storage: ^12.4.6
   google_sign_in: ^6.1.4
+  sign_in_with_apple: ^7.0.1
   
   # UI
   cupertino_icons: ^1.0.5
@@ -34,20 +34,20 @@ dependencies:
   
   # Networking
   http: ^1.1.0
-  dio: ^5.3.2
-  
-  # Utils
-  intl: ^0.18.1
+  dio: ^5.3.2  # Utils
+  intl: ^0.20.2
   path_provider: ^2.1.0
   shared_preferences: ^2.2.0
-  permission_handler: ^10.4.3
+  permission_handler: ^12.0.0
   image_picker: ^1.0.1
+  file_picker: ^10.1.9
+  path: ^1.8.3
   url_launcher: ^6.1.12
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.2
+  flutter_lints: ^6.0.0
   build_runner: ^2.4.6
   mockito: ^5.4.2
 
@@ -58,13 +58,14 @@ flutter:
     - assets/images/
     - assets/icons/
     
-  fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Inter-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
-          weight: 700
+  # Temporarily commented out until font files are added
+  # fonts:
+  #   - family: Inter
+  #     fonts:
+  #       - asset: assets/fonts/Inter-Regular.ttf
+  #       - asset: assets/fonts/Inter-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/Inter-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/Inter-Bold.ttf
+  #         weight: 700

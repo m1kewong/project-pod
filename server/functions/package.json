@@ -1,0 +1,25 @@
+{
+  "name": "video-transcoding-functions",
+  "version": "1.0.0",
+  "description": "Cloud Functions for video transcoding pipeline",
+  "main": "index.js",
+  "scripts": {
+    "start": "functions-framework --target=transcodeVideo",
+    "deploy": "gcloud functions deploy transcodeVideo --runtime nodejs18 --trigger-bucket pod-uploads-bucket --memory 1024MB --timeout 540s --region asia-east1",
+    "test": "mocha test/**/*.test.js"
+  },  "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@google-cloud/storage": "^7.7.0",
+    "@google-cloud/video-transcoder": "^2.5.0",
+    "@google-cloud/firestore": "^7.1.0",
+    "firebase-admin": "^12.0.0",
+    "uuid": "^9.0.1"
+  },"devDependencies": {
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "sinon": "^17.0.1"
+  },
+  "engines": {
+    "node": "18"
+  }
+}

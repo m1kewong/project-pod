@@ -1,0 +1,10 @@
+project_id               = "genz-video-app-staging"
+region                  = "asia-east1"
+environment             = "staging"
+domain_name             = "genz-video.app"
+enable_deletion_protection = false
+backup_retention_days   = 14
+max_scale              = 25
+db_tier                = "db-n1-standard-1"
+enable_monitoring      = true
+enable_logging         = true

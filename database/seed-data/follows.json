@@ -1,0 +1,26 @@
+[
+  {
+    "id": "follow1_demo",
+    "followerId": "user1_demo",
+    "followingId": "user2_demo",
+    "createdAt": "2024-03-13T14:20:00Z"
+  },
+  {
+    "id": "follow2_demo",
+    "followerId": "user2_demo",
+    "followingId": "user3_demo",
+    "createdAt": "2024-03-10T16:45:00Z"
+  },
+  {
+    "id": "follow3_demo",
+    "followerId": "user3_demo",
+    "followingId": "user1_demo",
+    "createdAt": "2024-03-12T11:30:00Z"
+  },
+  {
+    "id": "follow4_demo",
+    "followerId": "user1_demo",
+    "followingId": "user3_demo",
+    "createdAt": "2024-03-14T10:15:00Z"
+  }
+]

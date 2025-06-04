@@ -1,0 +1,65 @@
+[
+  {
+    "id": "activity1_demo",
+    "userId": "user1_demo",
+    "type": "video_upload",
+    "data": {
+      "videoId": "video1_demo",
+      "videoTitle": "Morning Coffee Routine ☕"
+    },
+    "createdAt": "2024-03-14T08:30:00Z"
+  },
+  {
+    "id": "activity2_demo",
+    "userId": "user1_demo",
+    "type": "like",
+    "data": {
+      "videoId": "video3_demo",
+      "videoTitle": "Tokyo Sunset Time-lapse 🌅",
+      "videoOwnerId": "user3_demo"
+    },
+    "createdAt": "2024-03-12T19:16:00Z"
+  },
+  {
+    "id": "activity3_demo",
+    "userId": "user1_demo",
+    "type": "follow",
+    "data": {
+      "followedUserId": "user2_demo",
+      "followedUsername": "bobthebuilder_22"
+    },
+    "createdAt": "2024-03-13T14:20:00Z"
+  },
+  {
+    "id": "activity4_demo",
+    "userId": "user2_demo",
+    "type": "video_upload",
+    "data": {
+      "videoId": "video2_demo",
+      "videoTitle": "Seoul Street Food Adventure 🥟"
+    },
+    "createdAt": "2024-03-13T15:20:00Z"
+  },
+  {
+    "id": "activity5_demo",
+    "userId": "user2_demo",
+    "type": "comment",
+    "data": {
+      "videoId": "video1_demo",
+      "videoTitle": "Morning Coffee Routine ☕",
+      "videoOwnerId": "user1_demo",
+      "commentText": "Your latte art is incredible! 😍"
+    },
+    "createdAt": "2024-03-14T08:45:00Z"
+  },
+  {
+    "id": "activity6_demo",
+    "userId": "user3_demo",
+    "type": "video_upload",
+    "data": {
+      "videoId": "video3_demo",
+      "videoTitle": "Tokyo Sunset Time-lapse 🌅"
+    },
+    "createdAt": "2024-03-12T18:45:00Z"
+  }
+]

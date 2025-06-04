@@ -31,8 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     
-    return Scaffold(
-      appBar: AppBar(
+    return Scaffold(      appBar: AppBar(
         title: const Text('Gen Z Video'),
         actions: [
           IconButton(
@@ -45,6 +44,21 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.notifications),
             onPressed: () {
               // TODO: Implement notifications screen
+            },
+          ),
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'auth_test') {
+                Navigator.pushNamed(context, '/auth_test');
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem<String>(
+                  value: 'auth_test',
+                  child: Text('Auth Test'),
+                ),
+              ];
             },
           ),
         ],

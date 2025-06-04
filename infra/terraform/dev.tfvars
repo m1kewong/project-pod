@@ -1,3 +1,10 @@
-project_id  = "genz-video-app-dev"
-region     = "asia-east1"
-environment = "dev"
+project_id               = "genz-video-app-dev"
+region                  = "asia-east1"
+environment             = "dev"
+domain_name             = "genz-video.app"
+enable_deletion_protection = false
+backup_retention_days   = 7
+max_scale              = 10
+db_tier                = "db-f1-micro"
+enable_monitoring      = true
+enable_logging         = true

@@ -1,7 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+// Import for Apple Sign In
+import 'dart:io' show Platform;
+import 'package:sign_in_with_apple/sign_in_with_apple.dart' show SignInWithApple, AppleIDCredential, AppleIDAuthorizationScopes, SignInWithAppleAuthorizationException;
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -11,6 +15,7 @@ class AuthService extends ChangeNotifier {
   User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
   bool get isAuthenticated => currentUser != null;
+  bool get isAnonymous => currentUser?.isAnonymous ?? false;
   
   // Anonymous sign in
   Future<User?> signInAnonymously() async {
@@ -18,9 +23,15 @@ class AuthService extends ChangeNotifier {
       final userCredential = await _auth.signInAnonymously();
       notifyListeners();
       return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException signing in anonymously: ${e.code} - ${e.message}');
+      rethrow;
+    } on PlatformException catch (e) {
+      print('PlatformException signing in anonymously: ${e.code} - ${e.message}');
+      rethrow;
     } catch (e) {
       print('Error signing in anonymously: $e');
-      return null;
+      rethrow;
     }
   }
   
@@ -33,6 +44,12 @@ class AuthService extends ChangeNotifier {
       );
       notifyListeners();
       return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException signing in with email: ${e.code} - ${e.message}');
+      rethrow;
+    } on PlatformException catch (e) {
+      print('PlatformException signing in with email: ${e.code} - ${e.message}');
+      rethrow;
     } catch (e) {
       print('Error signing in with email: $e');
       rethrow;
@@ -55,13 +72,18 @@ class AuthService extends ChangeNotifier {
       
       notifyListeners();
       return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException registering with email: ${e.code} - ${e.message}');
+      rethrow;
+    } on PlatformException catch (e) {
+      print('PlatformException registering with email: ${e.code} - ${e.message}');
+      rethrow;
     } catch (e) {
       print('Error registering with email: $e');
       rethrow;
     }
   }
-  
-  // Google Sign In
+    // Google Sign In
   Future<User?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
@@ -80,15 +102,87 @@ class AuthService extends ChangeNotifier {
       if (userCredential.additionalUserInfo?.isNewUser ?? false) {
         await _createUserDocument(
           userCredential.user!,
-          userCredential.user?.displayName ?? 'User',
+          userCredential.user?.displayName ?? googleUser.displayName ?? 'User',
+          photoURL: userCredential.user?.photoURL ?? googleUser.photoUrl,
         );
       }
       
       notifyListeners();
       return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException signing in with Google: ${e.code} - ${e.message}');
+      rethrow;
+    } on PlatformException catch (e) {
+      print('PlatformException signing in with Google: ${e.code} - ${e.message}');
+      rethrow;
     } catch (e) {
       print('Error signing in with Google: $e');
-      return null;
+      rethrow;
+    }
+  }
+    // Apple Sign In
+  Future<User?> signInWithApple() async {
+    // Only available on iOS or macOS
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      throw PlatformException(
+        code: 'APPLE_SIGN_IN_NOT_AVAILABLE',
+        message: 'Apple Sign In is only available on iOS and macOS platforms',
+      );
+    }
+
+    try {
+      // Request credential for Apple ID
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      
+      // Create an OAuthCredential
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+      
+      // Sign in with Firebase using the Apple credential
+      final userCredential = await _auth.signInWithCredential(oauthCredential);
+      
+      // Apple might not return the user's name every time, only the first time they sign in
+      String? displayName = userCredential.user?.displayName;
+      
+      // If we have the name from the Apple ID credential, use it
+      if (displayName == null || displayName.isEmpty) {
+        if (appleCredential.givenName != null && appleCredential.familyName != null) {
+          displayName = '${appleCredential.givenName} ${appleCredential.familyName}';
+          
+          // Update user's display name in Firebase if we got it from Apple
+          await userCredential.user?.updateDisplayName(displayName);
+        }
+      }
+      
+      // Check if this is a new user
+      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+        await _createUserDocument(
+          userCredential.user!,
+          displayName ?? 'Apple User',
+        );
+      }
+      
+      notifyListeners();
+      return userCredential.user;
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException signing in with Apple: ${e.code} - ${e.message}');
+      rethrow;
+    } on SignInWithAppleAuthorizationException catch (e) {
+      print('SignInWithAppleAuthorizationException: ${e.code} - ${e.message}');
+      rethrow;
+    } on PlatformException catch (e) {
+      print('PlatformException signing in with Apple: ${e.code} - ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error signing in with Apple: $e');
+      rethrow;
     }
   }
   
@@ -104,15 +198,79 @@ class AuthService extends ChangeNotifier {
     }
   }
   
-  // Create user document in Firestore
-  Future<void> _createUserDocument(User user, String displayName) async {
-    await _firestore.collection('users').doc(user.uid).set({
+  // Update user profile
+  Future<void> updateUserProfile({String? displayName, String? photoURL}) async {
+    try {
+      final user = currentUser;
+      if (user == null) throw Exception('No user logged in');
+      
+      // Update Firebase Auth profile
+      await user.updateDisplayName(displayName);
+      await user.updatePhotoURL(photoURL);
+      
+      // Update Firestore document
+      await _firestore.collection('users').doc(user.uid).update({
+        if (displayName != null) 'displayName': displayName,
+        if (photoURL != null) 'photoURL': photoURL,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      
+      notifyListeners();
+    } catch (e) {
+      print('Error updating user profile: $e');
+      rethrow;
+    }
+  }
+    // Create user document in Firestore
+  Future<void> _createUserDocument(User user, String displayName, {String? photoURL}) async {
+    final userData = {
       'uid': user.uid,
       'email': user.email,
       'displayName': displayName,
-      'photoURL': user.photoURL,
+      'photoURL': photoURL ?? user.photoURL,
+      'isAnonymous': user.isAnonymous,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+      'lastLoginAt': FieldValue.serverTimestamp(),
+      'videoCount': 0,
+      'followerCount': 0,
+      'followingCount': 0,
+      'likeCount': 0,
+      'bio': '',
+      'website': '',
+      'location': '',
+      'deviceToken': '',  // For push notifications
+      'settings': {
+        'notifications': true,
+        'darkMode': false,
+        'privateAccount': false,
+      },
+      'accountType': 'standard',  // standard, creator, verified
+      'joinDate': FieldValue.serverTimestamp(),
+    };
+    
+    await _firestore.collection('users').doc(user.uid).set(userData);
+  }
+  
+  // Get user profile data
+  Future<Map<String, dynamic>?> getUserProfile(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      return doc.data();
+    } catch (e) {
+      print('Error getting user profile: $e');
+      return null;
+    }
+  }
+  
+  // Update user's last login timestamp
+  Future<void> updateLastLogin(String userId) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'lastLoginAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Error updating last login: $e');
+    }
   }
 }

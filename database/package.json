@@ -1,0 +1,31 @@
+{
+  "name": "firestore-database-tools",
+  "version": "1.0.0",
+  "description": "Database tools for Gen Z Social Video Platform Firestore setup",
+  "scripts": {
+    "upload-seed": "node scripts/upload-seed-data.js",
+    "test-rules": "node scripts/test-security-rules.js",
+    "deploy": "./deploy-firestore.sh",
+    "deploy-win": "powershell -ExecutionPolicy Bypass -File deploy-firestore.ps1",
+    "test-deployment": "powershell -ExecutionPolicy Bypass -File deploy-firestore.ps1 -TestOnly"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "firestore",
+    "firebase",
+    "database",
+    "gcp",
+    "gen-z",
+    "social-video"
+  ],
+  "author": "Gen Z Social Video Platform Team",
+  "license": "MIT"
+}

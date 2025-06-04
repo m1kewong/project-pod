@@ -1,0 +1,71 @@
+[
+  {
+    "id": "notif1_demo",
+    "userId": "user1_demo",
+    "type": "like",
+    "title": "New Like",
+    "message": "Bob Kim liked your video \"Morning Coffee Routine ☕\"",
+    "data": {
+      "videoId": "video1_demo",
+      "fromUserId": "user2_demo",
+      "fromUsername": "bobthebuilder_22"
+    },
+    "read": false,
+    "createdAt": "2024-03-14T08:47:00Z"
+  },
+  {
+    "id": "notif2_demo",
+    "userId": "user1_demo",
+    "type": "comment",
+    "title": "New Comment",
+    "message": "Charlie Tanaka commented on your video: \"Coffee goals! ☕✨\"",
+    "data": {
+      "videoId": "video1_demo",
+      "fromUserId": "user3_demo",
+      "fromUsername": "charlie_tokyo",
+      "commentText": "Coffee goals! ☕✨"
+    },
+    "read": false,
+    "createdAt": "2024-03-14T09:12:30Z"
+  },
+  {
+    "id": "notif3_demo",
+    "userId": "user2_demo",
+    "type": "follow",
+    "title": "New Follower",
+    "message": "Alice Chen started following you",
+    "data": {
+      "fromUserId": "user1_demo",
+      "fromUsername": "alice_gen_z"
+    },
+    "read": true,
+    "createdAt": "2024-03-13T14:20:00Z"
+  },
+  {
+    "id": "notif4_demo",
+    "userId": "user3_demo",
+    "type": "like",
+    "title": "New Like",
+    "message": "Alice Chen liked your video \"Tokyo Sunset Time-lapse 🌅\"",
+    "data": {
+      "videoId": "video3_demo",
+      "fromUserId": "user1_demo",
+      "fromUsername": "alice_gen_z"
+    },
+    "read": false,
+    "createdAt": "2024-03-12T19:16:00Z"
+  },
+  {
+    "id": "notif5_demo",
+    "userId": "user2_demo",
+    "type": "system",
+    "title": "Video Processing Complete",
+    "message": "Your video \"Seoul Street Food Adventure 🥟\" has been processed and is now live!",
+    "data": {
+      "videoId": "video2_demo",
+      "processingTime": 125
+    },
+    "read": true,
+    "createdAt": "2024-03-13T15:47:00Z"
+  }
+]

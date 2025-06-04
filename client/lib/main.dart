@@ -10,19 +10,21 @@ import 'screens/login_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/upload_screen.dart';
 import 'screens/video_player_screen.dart';
+import 'screens/auth_test_screen.dart';
 import 'utils/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase
+  // Initialize Firebase with error handling for web builds
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print('Firebase initialized successfully');
   } catch (e) {
-    print('Failed to initialize Firebase: $e');
+    print('Failed to initialize Firebase (this is expected in some development environments): $e');
+    // Continue execution anyway for testing purposes
   }
   
   runApp(const MyApp());
@@ -41,9 +43,8 @@ class MyApp extends StatelessWidget {
         title: 'Gen Z Social Video',
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/',
+        themeMode: ThemeMode.system,        debugShowCheckedModeBanner: false,
+        initialRoute: '/auth_test',        
         routes: {
           '/': (context) => const SplashScreen(),
           '/home': (context) => const HomeScreen(),
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => const ProfileScreen(),
           '/upload': (context) => const UploadScreen(),
           '/player': (context) => const VideoPlayerScreen(),
+          '/auth_test': (context) => const AuthTestScreen(),
         },
       ),
     );

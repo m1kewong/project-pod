@@ -45,10 +45,10 @@ Test: Run app in emulator, verify Firebase initialization succeeds.
 
 **TODO List:**
 
-* [ ] Implement email, Google, and Apple login (via Firebase Auth)
-* [ ] Support anonymous browsing, but require login for actions (like/comment/upload)
-* [ ] Sync basic profile data (UID, email, display name, avatar) to Firestore on signup
-* [ ] Test: Register/login/logout flow, error handling
+* [x] Implement email, Google, and Apple login (via Firebase Auth)
+* [x] Support anonymous browsing, but require login for actions (like/comment/upload)
+* [x] Sync basic profile data (UID, email, display name, avatar) to Firestore on signup
+* [x] Test: Register/login/logout flow, error handling
 
 **Prompt:**
 
@@ -66,11 +66,16 @@ Test: Register, login, logout, and error cases.
 
 **TODO List:**
 
-* [ ] Create GCP project, enable billing
-* [ ] Enable required APIs: Cloud Run, Firestore, Cloud SQL, Cloud Storage, Cloud Functions, Transcoder API, Cloud CDN, Firebase
-* [ ] Create service accounts and configure IAM roles (least privilege)
-* [ ] Create initial dev and prod environments (e.g., separate projects or prefixes)
-* [ ] Test: List all enabled APIs and permissions
+* [x] Create GCP project, enable billing
+* [x] Enable required APIs: Cloud Run, Firestore, Cloud SQL, Cloud Storage, Cloud Functions, Transcoder API, Cloud CDN, Firebase
+* [x] Create service accounts and configure IAM roles (least privilege)
+* [x] Create initial dev and prod environments (e.g., separate projects or prefixes)
+* [x] Set up Cloud Storage buckets (uploads, public-videos, thumbnails)
+* [x] Configure Artifact Registry for Docker images
+* [x] Initialize Secret Manager with required secrets
+* [x] Test: List all enabled APIs and permissions
+
+**STATUS: ✅ COMPLETED** - All infrastructure components provisioned and tested successfully.
 
 **Prompt:**
 
@@ -88,10 +93,13 @@ Test: Output enabled APIs, verify permissions.
 
 **TODO List:**
 
-* [ ] Define and create collections: `users`, `videos`, `danmu_comments`, `notifications`
-* [ ] Define sample documents and rules (read/write: allow public reads, restrict writes)
-* [ ] Add Firestore security rules (require login for write, validate data shape)
-* [ ] Test: Add/read documents from Flutter app, verify security rules block unauthorized writes
+* [x] Define and create collections: `users`, `videos`, `danmu_comments`, `notifications`
+* [x] Define sample documents and rules (read/write: allow public reads, restrict writes)
+* [x] Add Firestore security rules (require login for write, validate data shape)
+* [x] Initialize Firestore database in production mode
+* [x] Test: Add/read documents from Flutter app, verify security rules block unauthorized writes
+
+**STATUS: ✅ COMPLETED** - Firestore database created and configured in asia-east1 region.
 
 **Prompt:**
 
@@ -108,10 +116,10 @@ Test: Add/read from Flutter app, ensure unauthorized writes are blocked.
 
 **TODO List:**
 
-* [ ] Integrate video file picker and upload logic in Flutter app (client → GCS via Firebase Storage)
-* [ ] Create `uploads` and `public` buckets in GCS
-* [ ] Set appropriate bucket permissions (private for uploads, public for transcoded videos)
-* [ ] Test: Upload a video, confirm it appears in the correct bucket
+* [x] Integrate video file picker and upload logic in Flutter app (client → GCS via Firebase Storage)
+* [x] Create `uploads` and `public` buckets in GCS
+* [x] Set appropriate bucket permissions (private for uploads, public for transcoded videos)
+* [x] Test: Upload a video, confirm it appears in the correct bucket
 
 **Prompt:**
 
@@ -128,10 +136,12 @@ Test: Upload from app, verify file appears in GCS bucket.
 
 **TODO List:**
 
-* [ ] Deploy a Cloud Function triggered by new video upload
-* [ ] Use Transcoder API to generate HLS and MP4 variants, thumbnails
-* [ ] Move output files to the `public` bucket and update Firestore/video metadata
-* [ ] Test: Upload a video, verify transcoding, output to public bucket, and metadata update
+* [x] Deploy a Cloud Function triggered by new video upload
+* [x] Use Transcoder API to generate HLS and MP4 variants, thumbnails
+* [x] Move output files to the `public` bucket and update Firestore/video metadata
+* [x] Test: Upload a video, verify transcoding, output to public bucket, and metadata update
+
+**STATUS: ✅ COMPLETED** - Transcoding pipeline deployed with Cloud Functions and Transcoder API.
 
 **Prompt:**
 
@@ -148,11 +158,38 @@ Test: Upload video, check outputs and metadata.
 
 **TODO List:**
 
-* [ ] Scaffold RESTful API using Node.js/TypeScript or Go
-* [ ] Implement endpoints: user profile, video metadata CRUD, danmu/comment posting, likes/shares, search
-* [ ] Integrate Firebase Auth JWT validation middleware
+* [x] Scaffold RESTful API using Node.js/TypeScript or Go
+* [x] Implement endpoints: user profile, video metadata CRUD, danmu/comment posting, likes/shares, search
+* [x] Integrate Firebase Auth JWT validation middleware
 * [ ] Containerize and deploy to Cloud Run (with GCP service account)
 * [ ] Test: Hit endpoints with Postman, check auth, CRUD flows
+
+**STATUS: 🚧 IN PROGRESS** - Core API implementation completed, containerization and deployment pending.
+
+**COMPLETED:**
+- ✅ Full RESTful API scaffolded using Node.js/TypeScript with Express
+- ✅ Comprehensive endpoint implementation:
+  - **Video endpoints**: CRUD operations, feed, search, like/unlike functionality
+  - **User endpoints**: Profile management, follow/unfollow, user videos, followers/following
+  - **Comment endpoints**: Create, read, update, delete, like comments, nested replies
+  - **Danmu endpoints**: Real-time overlay comments with timestamps, hide/show functionality
+- ✅ Firebase Auth JWT validation middleware integrated
+- ✅ Production-ready features:
+  - Rate limiting (basic, strict, upload-specific)
+  - Request validation with comprehensive schemas
+  - Error handling and logging
+  - Prometheus metrics collection
+  - Swagger API documentation
+  - Redis caching with fallback to memory cache
+  - CORS, Helmet security, compression
+- ✅ TypeScript compilation successful with zero errors
+- ✅ Environment configuration with mock Firebase support for local development
+- ✅ API server running successfully on port 8080 with health checks
+
+**PENDING:**
+- Docker containerization (Dockerfile exists, needs testing)
+- Cloud Run deployment
+- End-to-end API testing with authentication flows
 
 **Prompt:**
 

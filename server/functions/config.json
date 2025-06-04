@@ -1,0 +1,51 @@
+{
+  "project": {
+    "id": "project-pod-dev",
+    "region": "asia-east1"
+  },
+  "storage": {
+    "uploadsBucket": "project-pod-dev-uploads",
+    "publicBucket": "project-pod-dev-public-videos"
+  },
+  "transcoding": {
+    "qualities": {
+      "hd": {
+        "width": 1280,
+        "height": 720,
+        "bitrate": 2500000,
+        "framerate": 30
+      },
+      "sd": {
+        "width": 854,
+        "height": 480,
+        "bitrate": 1000000,
+        "framerate": 30
+      }
+    },
+    "audio": {
+      "codec": "aac",
+      "bitrate": 128000,
+      "channels": 2,
+      "sampleRate": 44100
+    },
+    "thumbnails": {
+      "width": 128,
+      "height": 72,
+      "columns": 4,
+      "rows": 4,
+      "interval": "10s"
+    }
+  },
+  "function": {
+    "name": "transcodeVideo",
+    "memory": "1024MB",
+    "timeout": "540s",
+    "runtime": "nodejs18"
+  },
+  "firestore": {
+    "collections": {
+      "videos": "videos",
+      "users": "users"
+    }
+  }
+}

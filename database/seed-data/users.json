@@ -1,0 +1,68 @@
+[
+  {
+    "id": "user1_demo",
+    "email": "alice@example.com",
+    "displayName": "Alice Chen",
+    "username": "alice_gen_z",
+    "avatar": "https://storage.googleapis.com/project-pod-public/avatars/alice.jpg",
+    "bio": "Gen Z content creator 🎬 | Tech enthusiast | Coffee addict ☕",
+    "verified": false,
+    "followerCount": 1250,
+    "followingCount": 890,
+    "videoCount": 45,
+    "totalLikes": 25600,
+    "preferences": {
+      "language": "en",
+      "timezone": "Asia/Singapore",
+      "notificationsEnabled": true,
+      "privateAccount": false,
+      "showActivity": true
+    },
+    "createdAt": "2024-01-15T08:30:00Z",
+    "updatedAt": "2024-03-15T14:22:00Z"
+  },
+  {
+    "id": "user2_demo",
+    "email": "bob@example.com",
+    "displayName": "Bob Kim",
+    "username": "bobthebuilder_22",
+    "avatar": "https://storage.googleapis.com/project-pod-public/avatars/bob.jpg",
+    "bio": "Building the future one video at a time 🚀 | Seoul, KR",
+    "verified": true,
+    "followerCount": 5400,
+    "followingCount": 234,
+    "videoCount": 128,
+    "totalLikes": 89300,
+    "preferences": {
+      "language": "ko",
+      "timezone": "Asia/Seoul",
+      "notificationsEnabled": true,
+      "privateAccount": false,
+      "showActivity": true
+    },
+    "createdAt": "2024-01-02T12:15:00Z",
+    "updatedAt": "2024-03-14T09:45:00Z"
+  },
+  {
+    "id": "user3_demo",
+    "email": "charlie@example.com",
+    "displayName": "Charlie Tanaka",
+    "username": "charlie_tokyo",
+    "avatar": "https://storage.googleapis.com/project-pod-public/avatars/charlie.jpg",
+    "bio": "Tokyo vibes 🗼 | Dance & music lover | Always learning",
+    "verified": false,
+    "followerCount": 892,
+    "followingCount": 1200,
+    "videoCount": 32,
+    "totalLikes": 12400,
+    "preferences": {
+      "language": "ja",
+      "timezone": "Asia/Tokyo",
+      "notificationsEnabled": false,
+      "privateAccount": true,
+      "showActivity": false
+    },
+    "createdAt": "2024-02-20T06:00:00Z",
+    "updatedAt": "2024-03-10T18:30:00Z"
+  }
+]

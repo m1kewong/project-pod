@@ -1,0 +1,74 @@
+[
+  {
+    "id": "comment1_demo",
+    "videoId": "video1_demo",
+    "userId": "user2_demo",
+    "text": "Your latte art is incredible! 😍",
+    "position": 12.5,
+    "color": "#FF6B6B",
+    "fontSize": 16,
+    "style": "normal",
+    "likeCount": 5,
+    "createdAt": "2024-03-14T08:45:00Z"
+  },
+  {
+    "id": "comment2_demo",
+    "videoId": "video1_demo",
+    "userId": "user3_demo",
+    "text": "Coffee goals! ☕✨",
+    "position": 25.8,
+    "color": "#4ECDC4",
+    "fontSize": 14,
+    "style": "normal",
+    "likeCount": 3,
+    "createdAt": "2024-03-14T09:12:00Z"
+  },
+  {
+    "id": "comment3_demo",
+    "videoId": "video2_demo",
+    "userId": "user1_demo",
+    "text": "I need to try this when I visit Seoul! 🤤",
+    "position": 34.2,
+    "color": "#FFE66D",
+    "fontSize": 15,
+    "style": "normal",
+    "likeCount": 8,
+    "createdAt": "2024-03-13T16:20:00Z"
+  },
+  {
+    "id": "comment4_demo",
+    "videoId": "video2_demo",
+    "userId": "user3_demo",
+    "text": "Best tteokbokki in the city! 🔥",
+    "position": 45.6,
+    "color": "#FF8B94",
+    "fontSize": 16,
+    "style": "bold",
+    "likeCount": 12,
+    "createdAt": "2024-03-13T18:30:00Z"
+  },
+  {
+    "id": "comment5_demo",
+    "videoId": "video3_demo",
+    "userId": "user1_demo",
+    "text": "Tokyo sunsets hit different 🌅",
+    "position": 15.3,
+    "color": "#A8E6CF",
+    "fontSize": 14,
+    "style": "normal",
+    "likeCount": 7,
+    "createdAt": "2024-03-12T19:15:00Z"
+  },
+  {
+    "id": "comment6_demo",
+    "videoId": "video3_demo",
+    "userId": "user2_demo",
+    "text": "Shibuya Sky is amazing! 😎",
+    "position": 28.9,
+    "color": "#FFD93D",
+    "fontSize": 15,
+    "style": "normal",
+    "likeCount": 4,
+    "createdAt": "2024-03-12T20:45:00Z"
+  }
+]

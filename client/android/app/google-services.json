@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "56249782826",
+    "project_id": "project-pod-dev",
+    "storage_bucket": "project-pod-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56249782826:android:3e0208545602fb7ac92953",
+        "android_client_info": {
+          "package_name": "com.genzvideo.genz_social_video"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_ygIc0ig04ZmvJC6Z8RNwRrVl2V8Z2SQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
