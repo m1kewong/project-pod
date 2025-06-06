@@ -36,8 +36,8 @@ export const logger = winston.createLogger({  level: config.logging.level,
   ],
 });
 
-// Add file transports for production
-if (config.nodeEnv === 'production') {
+// Add file transports for production (but not in containerized environments)
+if (config.nodeEnv === 'production' && !process.env['PORT']) {
   logger.add(new winston.transports.File({
     filename: 'logs/error.log',
     level: 'error',

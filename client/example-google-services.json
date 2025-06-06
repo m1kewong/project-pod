@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "56249782826",
+    "project_id": "project-pod-dev",
+    "storage_bucket": "project-pod-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56249782826:android:3e0208545602fb7ac92953",
+        "android_client_info": {
+          "package_name": "com.genzvideo.genz_social_video"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "56249782826-example-web-client-id.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "56249782826-example-android-client-id.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.genzvideo.genz_social_video",
+            "certificate_hash": "your-sha1-fingerprint-here"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_ygIc0ig04ZmvJC6Z8RNwRrVl2V8Z2SQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "56249782826-example-web-client-id.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "56249782826-example-ios-client-id.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.podwatch.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

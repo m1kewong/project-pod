@@ -36,6 +36,105 @@ router.get('/health', (_req, res) => {
   });
 });
 
+// Test endpoint without database access
+router.get('/test', (_req, res) => {
+  res.json({
+    success: true,
+    message: 'API test endpoint working',
+    timestamp: new Date().toISOString(),
+    environment: process.env['NODE_ENV'] || 'development',
+  });
+});
+
+// Minimal endpoint without any middleware
+router.get('/simple', (_req, res) => {
+  res.json({ success: true, message: 'Simple endpoint working' });
+});
+
+// Mock video feed endpoint without middleware (for testing)
+router.get('/videos/feed/simple', (_req: any, res: any) => {
+  const mockVideos = [
+    {
+      id: 'simple-video-1',
+      title: 'Simple Test Video',
+      description: 'Testing without middleware',
+      viewCount: 100,
+      likeCount: 5,
+      tags: ['test'],
+      createdAt: new Date().toISOString(),
+    },
+  ];
+
+  res.json({
+    success: true,
+    data: { videos: mockVideos, total: 1 },
+  });
+});
+
+// Mock video feed endpoint (temporary - for testing deployment)
+router.get('/videos/feed/mock', 
+  basicRateLimit,
+  paginationValidation,
+  handleValidationErrors,
+  (_req: any, res: any) => {
+    const mockVideos = [
+      {
+        id: 'mock-video-1',
+        title: 'Sample Gen Z Video 1',
+        description: 'This is a sample video for testing the API',
+        thumbnailUrl: 'https://example.com/thumb1.jpg',
+        videoUrl: 'https://example.com/video1.mp4',
+        duration: 60,
+        viewCount: 1000,
+        likeCount: 50,
+        commentCount: 10,
+        tags: ['genz', 'viral', 'trending'],
+        createdAt: new Date().toISOString(),
+        user: {
+          uid: 'mock-user-1',
+          displayName: 'Gen Z Creator',
+          username: 'genzcreatr',
+          profilePicture: 'https://example.com/profile1.jpg',
+        },
+      },
+      {
+        id: 'mock-video-2',
+        title: 'Sample Gen Z Video 2',
+        description: 'Another sample video for testing',
+        thumbnailUrl: 'https://example.com/thumb2.jpg',
+        videoUrl: 'https://example.com/video2.mp4',
+        duration: 90,
+        viewCount: 2500,
+        likeCount: 120,
+        commentCount: 25,
+        tags: ['funny', 'viral', 'meme'],
+        createdAt: new Date().toISOString(),
+        user: {
+          uid: 'mock-user-2',
+          displayName: 'Viral Content Maker',
+          username: 'viralmaker',
+          profilePicture: 'https://example.com/profile2.jpg',
+        },
+      },
+    ];
+
+    const result = {
+      videos: mockVideos,
+      pagination: {
+        page: 1,
+        limit: 20,
+        total: 2,
+        hasMore: false,
+      },
+    };
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  }
+);
+
 // Video routes
 router.get('/videos/feed', 
   basicRateLimit,
@@ -43,6 +142,14 @@ router.get('/videos/feed',
   paginationValidation,
   handleValidationErrors,
   videoController.getFeed
+);
+
+// Mock feed endpoint for testing
+router.get('/videos/mock-feed',
+  basicRateLimit,
+  paginationValidation,
+  handleValidationErrors,
+  videoController.getMockFeed
 );
 
 router.get('/videos/search',

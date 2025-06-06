@@ -120,6 +120,10 @@ class FirebaseService {
       throw error;
     }
   }
+
+  public isInitialized(): boolean {
+    return this.initialized;
+  }
 }
 
 export const firebaseService = FirebaseService.getInstance();

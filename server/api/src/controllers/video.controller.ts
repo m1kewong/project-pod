@@ -587,6 +587,102 @@ export class VideoController {
     });
   });
 
+  // Get mock video feed (for testing)
+  public getMockFeed = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    logger.info('Mock feed endpoint called', { 
+      query: req.query, 
+      userAgent: req.get('User-Agent'),
+      timestamp: new Date().toISOString()
+    });
+
+    const { page = 1, limit = 20 } = req.query;
+    
+    const mockVideos = [
+      {
+        id: 'mock-video-1',
+        title: 'Sample Gen Z Video 1',
+        description: 'This is a sample video for testing the API with mock data',
+        thumbnailUrl: 'https://picsum.photos/id/1001/400/600',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        duration: 60,
+        viewCount: 1000,
+        likeCount: 50,
+        commentCount: 10,
+        tags: ['genz', 'viral', 'trending', 'mock'],
+        createdAt: new Date().toISOString(),
+        user: {
+          uid: 'mock-user-1',
+          displayName: 'Gen Z Creator',
+          username: 'genzcreatr',
+          profilePicture: 'https://picsum.photos/id/91/200/200',
+        },
+      },
+      {
+        id: 'mock-video-2',
+        title: 'Sample Gen Z Video 2',
+        description: 'Another sample video for testing with different content',
+        thumbnailUrl: 'https://picsum.photos/id/1002/400/600',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        duration: 90,
+        viewCount: 2500,
+        likeCount: 120,
+        commentCount: 25,
+        tags: ['funny', 'viral', 'meme', 'mock'],
+        createdAt: new Date().toISOString(),
+        user: {
+          uid: 'mock-user-2',
+          displayName: 'Viral Content Maker',
+          username: 'viralmaker',
+          profilePicture: 'https://picsum.photos/id/92/200/200',
+        },
+      },
+      {
+        id: 'mock-video-3',
+        title: 'Trending Dance Challenge',
+        description: 'Latest dance challenge that is going viral on social media',
+        thumbnailUrl: 'https://picsum.photos/id/1003/400/600',
+        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        duration: 45,
+        viewCount: 5500,
+        likeCount: 300,
+        commentCount: 89,
+        tags: ['dance', 'challenge', 'trending', 'mock'],
+        createdAt: new Date().toISOString(),
+        user: {
+          uid: 'mock-user-3',
+          displayName: 'Dance Master',
+          username: 'dancemaster',
+          profilePicture: 'https://picsum.photos/id/93/200/200',
+        },
+      },
+    ];
+
+    const startIndex = (Number(page) - 1) * Number(limit);
+    const endIndex = startIndex + Number(limit);
+    const paginatedVideos = mockVideos.slice(startIndex, endIndex);
+
+    const result = {
+      videos: paginatedVideos,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total: mockVideos.length,
+        hasMore: endIndex < mockVideos.length,
+      },
+    };
+
+    logger.info('Mock feed served successfully', { 
+      videoCount: paginatedVideos.length, 
+      page: Number(page),
+      limit: Number(limit)
+    });
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  });
+
   // Private method to increment view count
   private async incrementViewCount(videoId: string, userId?: string): Promise<void> {
     try {

@@ -9,7 +9,9 @@ class VideoUploadService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  /// Upload a video file to Firebase Storage and create a video document in Firestore  Future<String> uploadVideo({
+  
+  /// Upload a video file to Firebase Storage and create a video document in Firestore
+  Future<String> uploadVideo({
     required File videoFile,
     required String title,
     required String description,

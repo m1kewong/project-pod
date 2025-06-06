@@ -7,8 +7,7 @@ class CacheService {
   private static instance: CacheService;
   private redisClient: Redis | null = null;
   private memoryCache: NodeCache;
-  private isRedisConnected = false;
-  private constructor() {
+  private isRedisConnected = false;  private constructor() {
     // Initialize in-memory cache as fallback
     this.memoryCache = new NodeCache({
       stdTTL: config.cache.ttl,
@@ -16,10 +15,15 @@ class CacheService {
       useClones: false,
     });
 
-    // Initialize Redis asynchronously (don't await in constructor)
-    this.initializeRedis().catch(error => {
-      logger.warn('Redis initialization failed, using memory cache only:', error);
-    });
+    // Only try Redis if not using memory-only mode
+    if (config.redis.url !== 'memory://localhost') {
+      // Initialize Redis asynchronously (don't await in constructor)
+      this.initializeRedis().catch(error => {
+        logger.warn('Redis initialization failed, using memory cache only:', error);
+      });
+    } else {
+      logger.info('Using memory-only cache mode');
+    }
   }
 
   public static getInstance(): CacheService {
@@ -27,8 +31,7 @@ class CacheService {
       CacheService.instance = new CacheService();
     }
     return CacheService.instance;
-  }
-  public async initialize(): Promise<void> {
+  }  public async initialize(): Promise<void> {
     // This method allows external initialization
     // The actual Redis initialization happens in the constructor
     if (this.redisClient && config.redis.lazyConnect && !this.isRedisConnected) {
@@ -40,6 +43,11 @@ class CacheService {
         this.redisClient = null;
       }
     }
+  }
+
+  public isInitialized(): boolean {
+    // Cache service is always initialized since we have memory fallback
+    return true;
   }
   private async initializeRedis(): Promise<void> {
     try {

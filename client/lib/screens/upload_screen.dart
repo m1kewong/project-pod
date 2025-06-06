@@ -177,16 +177,17 @@ class _UploadScreenState extends State<UploadScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isUploading = false;
+        setState(() {        _isUploading = false;
           _uploadProgress = 0.0;
         });
       }
-    }  }  @override
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    
-    // Redirect to login if not authenticated
+      // Redirect to login if not authenticated
     if (!authService.isAuthenticated) {
       return Center(
         child: Column(
@@ -214,7 +215,6 @@ class _UploadScreenState extends State<UploadScreen> {
         ),
       );
     }
-    */
     
     // User is authenticated, show upload form
     return Scaffold(

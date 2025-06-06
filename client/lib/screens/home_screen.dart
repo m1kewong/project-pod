@@ -14,9 +14,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  String? _pendingSearchQuery;
   
-  final List<Widget> _screens = [
-    const VideoFeedScreen(),
+  List<Widget> get _screens => [
+    VideoFeedScreen(
+      initialSearchQuery: _pendingSearchQuery,
+      key: ValueKey(_pendingSearchQuery ?? 'feed'),
+    ),
     const UploadScreen(),
     const ProfileScreen(),
   ];
@@ -27,18 +31,76 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        String searchQuery = '';
+        return AlertDialog(
+          title: const Text('Search Videos'),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'Enter search query...',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              searchQuery = value;
+            },            onSubmitted: (value) {
+              Navigator.pop(context);
+              if (value.trim().isNotEmpty) {
+                // Switch to video feed if not already there
+                if (_selectedIndex != 0) {
+                  setState(() {
+                    _selectedIndex = 0;
+                  });
+                }
+                // Set search query and rebuild video feed
+                setState(() {
+                  _pendingSearchQuery = value.trim();
+                });
+              }
+            },
+          ),
+          actions: [            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (searchQuery.trim().isNotEmpty) {
+                  // Switch to video feed if not already there
+                  if (_selectedIndex != 0) {
+                    setState(() {
+                      _selectedIndex = 0;
+                    });
+                  }
+                  // Set search query and rebuild video feed
+                  setState(() {
+                    _pendingSearchQuery = searchQuery.trim();
+                  });
+                }
+              },
+              child: const Text('Search'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     
-    return Scaffold(      appBar: AppBar(
+    return Scaffold(
+      appBar: AppBar(
         title: const Text('Gen Z Video'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement search functionality
-            },
+            onPressed: _showSearchDialog,
           ),
           IconButton(
             icon: const Icon(Icons.notifications),

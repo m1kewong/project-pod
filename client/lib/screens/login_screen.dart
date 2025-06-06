@@ -86,7 +86,27 @@ class _LoginScreenState extends State<LoginScreen> {
     
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.signInWithGoogle();
+      
+      try {
+        // Try Google Sign-In first
+        await authService.signInWithGoogle();
+      } catch (e) {
+        // Temporarily fall back to anonymous auth if Google Sign-In fails
+        print('Google Sign-In failed, falling back to anonymous: $e');
+        
+        // Show a snackbar notification about the fallback
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Google Sign-In is not configured yet. Using anonymous login as a temporary fallback.'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 5),
+            ),
+          );
+        }
+        
+        await authService.signInAnonymously();
+      }
       
       if (!mounted) return;
       
