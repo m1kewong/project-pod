@@ -16,7 +16,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import promMiddleware from 'express-prometheus-middleware';
 
-class App {
+export class App {
   public app: express.Application;
   private port: number;
   private server: Server | null = null;
@@ -261,11 +261,13 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// Start application
+// Start application unless running in a test environment
 const app = new App();
-app.start().catch((error) => {
-  logger.error('Failed to start application:', error);
-  process.exit(1);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.start().catch((error) => {
+    logger.error('Failed to start application:', error);
+    process.exit(1);
+  });
+}
 
 export default app;
