@@ -8,10 +8,11 @@ import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/profile_screen.dart';
-// import 'screens/upload_screen.dart';  // Temporarily commented out due to compilation errors
+import 'screens/upload_screen.dart';
 import 'screens/video_player_screen.dart';
-import 'screens/danmu_test_screen.dart';
+import 'screens/enhanced_video_player_screen.dart';
 import 'screens/auth_test_screen.dart';
+import 'screens/danmu_test_screen.dart';  // Import the new screen
 import 'utils/app_theme.dart';
 
 void main() async {
@@ -41,19 +42,41 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthService()),
       ],
       child: MaterialApp(
-        title: 'Gen Z Social Video',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,        themeMode: ThemeMode.system,
+        title: 'Gen Z Social Video',        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,        
+        themeMode: ThemeMode.system,
         debugShowCheckedModeBanner: false,
-        initialRoute: '/danmu_test',        routes: {
+        initialRoute: '/',          routes: {
           '/': (context) => const SplashScreen(),
-          '/home': (context) => const HomeScreen(),
-          '/login': (context) => const LoginScreen(),
+          '/home': (context) => const HomeScreen(),          '/login': (context) => const LoginScreen(),
           '/profile': (context) => const ProfileScreen(),
-          // '/upload': (context) => const UploadScreen(),  // Temporarily commented out
-          '/player': (context) => const VideoPlayerScreen(),
-          '/danmu_test': (context) => const DanmuTestScreen(),
+          '/upload': (context) => const UploadScreen(),
+          // Enhanced player route will be navigated to with parameters:
+          // Navigator.pushNamed(context, '/enhanced_player', arguments: {'videoId': 'video_id_here'});
           '/auth_test': (context) => const AuthTestScreen(),
+          '/danmu_test': (context) => const DanmuTestScreen(),  // Add the new route
+        },
+        // Add onGenerateRoute for handling routes with parameters
+        onGenerateRoute: (settings) {
+          if (settings.name == '/player') {
+            final args = settings.arguments as Map<String, dynamic>?;
+            return MaterialPageRoute(
+              builder: (context) => VideoPlayerScreen(
+                videoId: args?['videoId'] ?? '1',
+              ),
+            );
+          } else if (settings.name == '/enhanced_player') {
+            final args = settings.arguments as Map<String, dynamic>?;
+            return MaterialPageRoute(
+              builder: (context) => EnhancedVideoPlayerScreen(
+                videoId: args?['videoId'] ?? '1',
+                videoUrl: args?['videoUrl'],
+                title: args?['title'],
+                description: args?['description'],
+              ),
+            );
+          }
+          return null;
         },
       ),
     );

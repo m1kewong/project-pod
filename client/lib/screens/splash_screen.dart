@@ -19,10 +19,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeApp();
+    _checkFirebaseStatus();
   }
 
-  Future<void> _initializeApp() async {
+  Future<void> _checkFirebaseStatus() async {
     try {
       // Check Firebase initialization
       final isInitialized = Firebase.app().options != null;
@@ -30,27 +30,53 @@ class _SplashScreenState extends State<SplashScreen> {
       setState(() {
         _isFirebaseInitialized = isInitialized;
       });
-      
-      // Wait for 2 seconds to show splash screen
-      await Future.delayed(const Duration(seconds: 2));
-      
-      if (!mounted) return;
-      
-      // Check if user is logged in
-      final authService = Provider.of<AuthService>(context, listen: false);
-      if (authService.currentUser != null) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    }
+  }
+  
+  void _continueToApp() async {
+    try {
+      if (_isFirebaseInitialized) {
+        // Check if user is logged in
+        final authService = Provider.of<AuthService>(context, listen: false);
+        if (authService.currentUser != null) {
+          Navigator.of(context).pushReplacementNamed('/home');
+        } else {
+          Navigator.of(context).pushReplacementNamed('/login');
+        }
       } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
+        // If Firebase isn't initialized, just show an error
+        setState(() {
+          _errorMessage = 'Firebase not initialized. Login unavailable.';
+        });
       }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
       });
+    }
+  }
+    void _continueAsTester() async {
+    try {
+      // First try to sign in as a mock user if possible
+      final authService = Provider.of<AuthService>(context, listen: false);
+      await authService.signInAsMockUser();
+      
+      // Navigate to danmu test regardless of auth result
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/danmu_test');
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+      // Still navigate to danmu test even if authentication fails
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/danmu_test');
+      }
     }
   }
 
@@ -84,9 +110,29 @@ class _SplashScreenState extends State<SplashScreen> {
                   style: const TextStyle(color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
-              )
-            else
-              const CircularProgressIndicator(),
+              ),
+              
+            const SizedBox(height: 20),
+            
+            // Test button always available
+            ElevatedButton(
+              onPressed: _continueAsTester,
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+              ),
+              child: const Text('Test Danmu Feature'),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Main app button
+            OutlinedButton(
+              onPressed: _continueToApp,
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(200, 50),
+              ),
+              child: const Text('Continue to Full App'),
+            ),
           ],
         ),
       ),
