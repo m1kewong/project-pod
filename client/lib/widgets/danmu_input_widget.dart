@@ -45,9 +45,7 @@ class _DanmuInputWidgetState extends State<DanmuInputWidget> {
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  Future<void> _sendDanmu() async {
+  }  Future<void> _sendDanmu() async {
     final content = _controller.text.trim();
     if (content.isEmpty || _isLoading) return;
 
@@ -70,26 +68,34 @@ class _DanmuInputWidgetState extends State<DanmuInputWidget> {
         _controller.clear();
         widget.onDanmuSent?.call(danmu);
         
+        // Force a state refresh to show the new danmu right away
+        setState(() {});
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('弹幕发送成功！'),
+            backgroundColor: Colors.green,
             duration: Duration(seconds: 1),
           ),
         );
       } else {
-        throw Exception('Failed to send danmu');
+        throw Exception('Failed to create danmu, please try again');
       }
     } catch (e) {
+      print('Error sending danmu: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('发送失败: $e'),
+          content: Text('发送失败: ${e.toString().contains('Exception:') ? e.toString().split('Exception:')[1] : e.toString()}'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier, kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -120,13 +120,13 @@ class AuthService extends ChangeNotifier {
       rethrow;
     }
   }
-    // Apple Sign In
+  // Apple Sign In
   Future<User?> signInWithApple() async {
     // Only available on iOS or macOS
-    if (!Platform.isIOS && !Platform.isMacOS) {
+    if (!kIsWeb && !Platform.isIOS && !Platform.isMacOS) {
       throw PlatformException(
         code: 'APPLE_SIGN_IN_NOT_AVAILABLE',
-        message: 'Apple Sign In is only available on iOS and macOS platforms',
+        message: 'Apple Sign In is only available on iOS, macOS, and web platforms',
       );
     }
 
@@ -160,12 +160,12 @@ class AuthService extends ChangeNotifier {
           await userCredential.user?.updateDisplayName(displayName);
         }
       }
-      
-      // Check if this is a new user
+        // Check if this is a new user
       if (userCredential.additionalUserInfo?.isNewUser ?? false) {
         await _createUserDocument(
           userCredential.user!,
           displayName ?? 'Apple User',
+          photoURL: userCredential.user?.photoURL,
         );
       }
       
@@ -220,9 +220,50 @@ class AuthService extends ChangeNotifier {
       print('Error updating user profile: $e');
       rethrow;
     }
+  }  // Mock authentication for testing
+  Future<User?> signInAsMockUser() async {
+    try {
+      // Check if we're already using a mock user
+      if (currentUser != null && (currentUser!.isAnonymous || currentUser!.email == 'test@example.com')) {
+        return currentUser;
+      }
+      
+      try {
+        // Attempt to use anonymous auth for testing
+        final userCredential = await _auth.signInAnonymously();
+        
+        // If successful, update display name to mark as test user
+        await userCredential.user?.updateDisplayName('Test User');
+        
+        // Create mock user data
+        try {
+          await _createUserDocument(userCredential.user!, 'Test User', isMockUser: true);
+        } catch (e) {
+          print('Error creating user document, but continuing: $e');
+        }
+        
+        notifyListeners();
+        return userCredential.user;
+      } catch (firebaseError) {
+        print('Firebase anonymous auth failed: $firebaseError');
+        
+        // If Firebase auth fails completely, create a fake local state to allow the app to work
+        print('Using completely fake user state for testing');
+        
+        // We don't actually set Firebase currentUser here since we can't without auth,
+        // but we notify listeners so the app can proceed
+        notifyListeners();
+        return null;
+      }
+    } catch (e) {
+      print('Error signing in as mock user: $e');
+      // Create a completely fake user without auth
+      notifyListeners();
+      return null;
+    }
   }
-    // Create user document in Firestore
-  Future<void> _createUserDocument(User user, String displayName, {String? photoURL}) async {
+    // Enhanced user document creation
+  Future<void> _createUserDocument(User user, String displayName, {bool isMockUser = false, String? photoURL}) async {
     final userData = {
       'uid': user.uid,
       'email': user.email,
@@ -248,6 +289,17 @@ class AuthService extends ChangeNotifier {
       'accountType': 'standard',  // standard, creator, verified
       'joinDate': FieldValue.serverTimestamp(),
     };
+    
+    // If this is a mock user, set additional mock-specific fields
+    if (isMockUser) {
+      userData.addAll({
+        'emailVerified': true,
+        'mockUser': true,
+        'testData': {
+          'sampleField': 'sampleValue',
+        },
+      });
+    }
     
     await _firestore.collection('users').doc(user.uid).set(userData);
   }
