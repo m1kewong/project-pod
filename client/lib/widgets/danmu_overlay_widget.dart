@@ -164,7 +164,8 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
   }
 
   void _createAnimation(DanmuComment danmu) {
-    print('Creating animation for danmu: ${danmu.content}');
+    print('Creating animation for danmu: ${danmu.content} with position ${danmu.position}');
+    
     final controller = AnimationController(
       duration: Duration(seconds: (8.0 / danmu.speed).round()),
       vsync: this,
@@ -175,8 +176,8 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
     switch (danmu.position) {
       case 'scroll':
         animation = Tween<double>(
-          begin: widget.videoSize.width,
-          end: -200.0, // Approximate text width
+          begin: 0.0,
+          end: 1.0, // We'll use this to calculate the actual position
         ).animate(CurvedAnimation(
           parent: controller,
           curve: Curves.linear,
@@ -185,19 +186,29 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
         
       case 'top':
       case 'bottom':
-        animation = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(
-          parent: controller,
-          curve: Curves.easeInOut,
-        ));
+        // For top/bottom, animate opacity
+        animation = TweenSequence<double>([
+          TweenSequenceItem(
+            tween: Tween<double>(begin: 0.0, end: 1.0)
+                .chain(CurveTween(curve: Curves.easeIn)),
+            weight: 10.0,
+          ),
+          TweenSequenceItem(
+            tween: Tween<double>(begin: 1.0, end: 1.0),
+            weight: 80.0,
+          ),
+          TweenSequenceItem(
+            tween: Tween<double>(begin: 1.0, end: 0.0)
+                .chain(CurveTween(curve: Curves.easeOut)),
+            weight: 10.0,
+          ),
+        ]).animate(controller);
         break;
         
       default:
         animation = Tween<double>(
-          begin: widget.videoSize.width,
-          end: -200.0,
+          begin: 0.0,
+          end: 1.0,
         ).animate(CurvedAnimation(
           parent: controller,
           curve: Curves.linear,
@@ -211,7 +222,6 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
     controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         print('Animation completed for danmu: ${danmu.content}');
-        // This helps in case the timing-based removal didn't catch it
         if (mounted) {
           setState(() {
             _activeDanmu.removeWhere((active) => active.comment.id == danmu.id);
@@ -282,16 +292,20 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
   @override
   Widget build(BuildContext context) {
     print('Building DanmuOverlayWidget with ${_activeDanmu.length} active danmu comments');
-    return SizedBox(
+    
+    return Container(
       width: widget.videoSize.width,
       height: widget.videoSize.height,
+      color: Colors.transparent,
       child: Stack(
+        fit: StackFit.expand,
+        clipBehavior: Clip.none,
         children: [
-          // Debug overlay to show the danmu container
+          // Debug background to verify overlay area
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.red.withOpacity(0.3), width: 1),
+                border: Border.all(color: Colors.blue.withOpacity(0.2), width: 1),
               ),
             ),
           ),
@@ -306,28 +320,50 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
               return const SizedBox.shrink();
             }
 
+            // Debug print for positioning
+            print('Positioning danmu: ${comment.content} at line ${activeDanmu.line}, position: ${comment.position}');
+
             return AnimatedBuilder(
               animation: animation,
               builder: (context, child) {
+                final left = _getLeftPosition(comment, animation.value);
+                final top = activeDanmu.line * _lineHeight + _padding;
+                
+                print('Danmu position - Left: $left, Top: $top');
+                
                 return Positioned(
-                  left: _getLeftPosition(comment, animation.value),
-                  top: activeDanmu.line * _lineHeight + _padding,
-                  child: _buildDanmuText(comment),
+                  left: left,
+                  top: top,
+                  child: child ?? const SizedBox.shrink(),
                 );
               },
+              child: _buildDanmuText(comment),
             );
           }).toList(),
           
-          // Debug text showing current time
+          // Debug overlay showing stats
           Positioned(
             left: 10,
             bottom: 10,
             child: Container(
               padding: const EdgeInsets.all(4),
               color: Colors.black.withOpacity(0.5),
-              child: Text(
-                'Time: ${widget.currentTime.toStringAsFixed(1)}s | Active: ${_activeDanmu.length}',
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Time: ${widget.currentTime.toStringAsFixed(1)}s',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                  Text(
+                    'Active: ${_activeDanmu.length}',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                  Text(
+                    'Size: ${widget.videoSize.width.toStringAsFixed(0)}x${widget.videoSize.height.toStringAsFixed(0)}',
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
               ),
             ),
           ),
@@ -339,12 +375,12 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
   double _getLeftPosition(DanmuComment comment, double animationValue) {
     switch (comment.position) {
       case 'scroll':
-        return animationValue;
+        return widget.videoSize.width * (1 - animationValue) - 200;
       case 'top':
       case 'bottom':
         return (widget.videoSize.width - 200) / 2; // Center
       default:
-        return animationValue;
+        return widget.videoSize.width * (1 - animationValue) - 200;
     }
   }
 
@@ -353,8 +389,10 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
     final color = _parseColor(comment.color);
     
     return Container(
-      constraints: const BoxConstraints(maxWidth: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      constraints: BoxConstraints(
+        maxWidth: widget.videoSize.width * 0.8, // Limit width to 80% of video width
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.3),
         borderRadius: BorderRadius.circular(4),
@@ -372,7 +410,7 @@ class _DanmuOverlayWidgetState extends State<DanmuOverlayWidget>
               offset: Offset(1.0, 1.0),
             ),
             Shadow(
-              blurRadius: 1.0,
+              blurRadius: 2.0,
               color: Colors.black,
               offset: Offset(-1.0, -1.0),
             ),

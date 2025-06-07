@@ -6,19 +6,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // Import for Apple Sign In
 import 'dart:io' show Platform;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart' show SignInWithApple, AppleIDCredential, AppleIDAuthorizationScopes, SignInWithAppleAuthorizationException;
+import 'dart:async';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-    User? get currentUser => _auth.currentUser;
+  User? get currentUser => _auth.currentUser;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
   bool get isAuthenticated => currentUser != null || _isUsingMockUser;
   bool get isAnonymous => currentUser?.isAnonymous ?? _isUsingMockUser;
+  bool get isEmailVerified => currentUser?.emailVerified ?? false;
   
   // Flag to track if we're using a mock user when Firebase auth fails
   bool _isUsingMockUser = false;
-    // Anonymous sign in
+  
+  // Timer for refreshing the user to check email verification status
+  Timer? _emailVerificationTimer;
+  
+  // Anonymous sign in
   Future<User?> signInAnonymously() async {
     try {
       print('Attempting anonymous sign-in...');
@@ -59,7 +65,8 @@ class AuthService extends ChangeNotifier {
       rethrow;
     }
   }
-    // Create a mock anonymous user for testing when Firebase auth fails
+  
+  // Create a mock anonymous user for testing when Firebase auth fails
   User? _createMockAnonymousUser() {
     print('Using mock anonymous user');
     // Set the flag that we're using a mock user
@@ -76,6 +83,10 @@ class AuthService extends ChangeNotifier {
         email: email,
         password: password,
       );
+      
+      // Update last login time in Firestore
+      await updateLastLogin(userCredential.user!.uid);
+      
       notifyListeners();
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
@@ -104,6 +115,9 @@ class AuthService extends ChangeNotifier {
       // Create user document in Firestore
       await _createUserDocument(userCredential.user!, displayName);
       
+      // Send email verification
+      await sendEmailVerification();
+      
       notifyListeners();
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
@@ -117,7 +131,90 @@ class AuthService extends ChangeNotifier {
       rethrow;
     }
   }
-    // Google Sign In
+  
+  // Send email verification
+  Future<void> sendEmailVerification() async {
+    try {
+      final user = currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+      }
+    } catch (e) {
+      print('Error sending email verification: $e');
+      rethrow;
+    }
+  }
+  
+  // Check if email is verified (and refresh user to get latest status)
+  Future<bool> checkEmailVerification() async {
+    try {
+      final user = currentUser;
+      if (user == null) return false;
+      
+      // Reload user to get fresh data from Firebase
+      await user.reload();
+      
+      // Get updated user
+      final updatedUser = _auth.currentUser;
+      
+      // Notify listeners since the user object might have changed
+      notifyListeners();
+      
+      return updatedUser?.emailVerified ?? false;
+    } catch (e) {
+      print('Error checking email verification: $e');
+      return false;
+    }
+  }
+  
+  // Start polling for email verification
+  void startEmailVerificationCheck({int intervalSeconds = 3, int maxAttempts = 60}) {
+    // Cancel any existing timer
+    _emailVerificationTimer?.cancel();
+    
+    int attempts = 0;
+    
+    _emailVerificationTimer = Timer.periodic(Duration(seconds: intervalSeconds), (timer) async {
+      attempts++;
+      
+      // Check if we've reached the maximum number of attempts
+      if (attempts >= maxAttempts) {
+        timer.cancel();
+        _emailVerificationTimer = null;
+        return;
+      }
+      
+      // Check if email is verified
+      final isVerified = await checkEmailVerification();
+      
+      if (isVerified) {
+        // Email is verified, stop the timer
+        timer.cancel();
+        _emailVerificationTimer = null;
+      }
+    });
+  }
+  
+  // Stop email verification checking
+  void stopEmailVerificationCheck() {
+    _emailVerificationTimer?.cancel();
+    _emailVerificationTimer = null;
+  }
+  
+  // Reset password
+  Future<void> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException resetting password: ${e.code} - ${e.message}');
+      rethrow;
+    } catch (e) {
+      print('Error resetting password: $e');
+      rethrow;
+    }
+  }
+    
+  // Google Sign In
   Future<User?> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
@@ -222,6 +319,9 @@ class AuthService extends ChangeNotifier {
     // Sign Out
   Future<void> signOut() async {
     try {
+      // Stop email verification check if running
+      stopEmailVerificationCheck();
+      
       // Reset mock user flag
       _isUsingMockUser = false;
       
@@ -302,7 +402,8 @@ class AuthService extends ChangeNotifier {
       return null;
     }
   }
-    // Enhanced user document creation
+    
+  // Enhanced user document creation
   Future<void> _createUserDocument(User user, String displayName, {bool isMockUser = false, String? photoURL}) async {
     final userData = {
       'uid': user.uid,
@@ -363,6 +464,46 @@ class AuthService extends ChangeNotifier {
       });
     } catch (e) {
       print('Error updating last login: $e');
+    }
+  }
+  
+  // Reload current user
+  Future<void> reloadUser() async {
+    try {
+      final user = currentUser;
+      if (user != null) {
+        await user.reload();
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error reloading user: $e');
+    }
+  }
+  
+  // Check if the current session is valid
+  Future<bool> validateSession() async {
+    try {
+      final user = currentUser;
+      if (user == null) return false;
+      
+      // For web platform, we need a more robust check
+      if (kIsWeb) {
+        try {
+          // Getting token will fail if the session is invalid
+          await user.getIdToken(true);
+          return true;
+        } catch (e) {
+          print('Session validation failed: $e');
+          return false;
+        }
+      }
+      
+      // For mobile, just reload the user
+      await user.reload();
+      return _auth.currentUser != null;
+    } catch (e) {
+      print('Error validating session: $e');
+      return false;
     }
   }
 }

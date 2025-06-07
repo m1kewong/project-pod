@@ -71,13 +71,24 @@ class _DanmuInputWidgetState extends State<DanmuInputWidget> {
         // Force a state refresh to show the new danmu right away
         setState(() {});
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('弹幕发送成功！'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 1),
-          ),
-        );
+        // Check Firestore write status
+        if (_danmuService.lastFirestoreWriteSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ 弹幕发送成功并已保存到数据库！'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('⚠️ 弹幕已发送但未保存到数据库: ${_danmuService.lastFirestoreErrorMessage}'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       } else {
         throw Exception('Failed to create danmu, please try again');
       }
@@ -85,7 +96,7 @@ class _DanmuInputWidgetState extends State<DanmuInputWidget> {
       print('Error sending danmu: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('发送失败: ${e.toString().contains('Exception:') ? e.toString().split('Exception:')[1] : e.toString()}'),
+          content: Text('❌ 发送失败: ${e.toString().contains('Exception:') ? e.toString().split('Exception:')[1] : e.toString()}'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
