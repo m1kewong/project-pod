@@ -36,27 +36,43 @@ class _SplashScreenState extends State<SplashScreen> {
       });
     }
   }
-  
-  void _continueToApp() async {
+    void _continueToApp() async {
     try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      
       if (_isFirebaseInitialized) {
         // Check if user is logged in
-        final authService = Provider.of<AuthService>(context, listen: false);
-        if (authService.currentUser != null) {
+        if (authService.isAuthenticated) {
+          print('Splash screen: User is authenticated, continuing to home');
           Navigator.of(context).pushReplacementNamed('/home');
         } else {
+          print('Splash screen: User is not authenticated, continuing to login');
           Navigator.of(context).pushReplacementNamed('/login');
         }
       } else {
-        // If Firebase isn't initialized, just show an error
-        setState(() {
-          _errorMessage = 'Firebase not initialized. Login unavailable.';
-        });
+        // If Firebase isn't initialized, show warning but allow continuing to login
+        print('Splash screen: Firebase not initialized, continuing to login with limited functionality');
+        
+        // Show a warning message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Firebase not fully initialized. Some features may be limited.'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 5),
+          ),
+        );
+        
+        // Continue to login screen
+        Navigator.of(context).pushReplacementNamed('/login');
       }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
       });
+      
+      // Even if there's an error, try to continue to login
+      print('Splash screen: Error during navigation: $_errorMessage');
+      Navigator.of(context).pushReplacementNamed('/login');
     }
   }
     void _continueAsTester() async {

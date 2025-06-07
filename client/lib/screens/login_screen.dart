@@ -124,24 +124,50 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
-  
-  Future<void> _anonymousBrowsing() async {
+    Future<void> _anonymousBrowsing() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = '';
     });
     
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
+      
+      // Attempt to sign in anonymously
+      print('Login screen: Attempting anonymous sign-in');
       await authService.signInAnonymously();
       
       if (!mounted) return;
       
-      // Navigate to home screen
-      Navigator.pushReplacementNamed(context, '/home');
+      // Check if we're actually authenticated (either with real or mock user)
+      if (authService.isAnonymous) {
+        print('Login screen: Anonymous sign-in successful');
+        // Navigate to home screen
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // This should not happen with our updated implementation, but just in case
+        print('Login screen: Anonymous sign-in failed silently');
+        setState(() {
+          _errorMessage = 'Anonymous browsing is currently unavailable. Please try another sign-in method.';
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      print('Login screen: Anonymous sign-in error: $e');
+      if (mounted) {
+        // Show a more user-friendly error message
+        setState(() {
+          _errorMessage = 'Unable to continue as guest. Please try another sign-in method.';
+        });
+        
+        // Show a snackbar with more details for debugging
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Guest login error: ${e.toString()}'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
